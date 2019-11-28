@@ -1,18 +1,19 @@
 # LearnGitBranching
 
 [![Build Status](https://travis-ci.org/pcottle/learnGitBranching.svg?branch=master)](https://travis-ci.org/pcottle/learnGitBranching)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?)](https://github.com/pcottle/learnGitBranching/pulls)
 
-LearnGitBranching is a git repository visualizer, sandbox, and series of educational tutorials and challenges. Its primary purpose is to help developers understand git through the power of visualization (something that's absent when working on the command line).
+LearnGitBranching is a git repository visualizer, sandbox, and a series of educational tutorials and challenges. Its primary purpose is to help developers understand git through the power of visualization (something that's absent when working on the command line). This is achieved through a game with different levels to get acquainted with the different git commands.
 
 You can input a variety of commands into LearnGitBranching (LGB) -- as commands are processed, the nearby commit tree will dynamically update to reflect the effects of each command:
 
 ![demo-gif](https://user-images.githubusercontent.com/7308241/39848730-040bd09e-53df-11e8-964e-2d48f35a4355.gif)
 
 This visualization combined with tutorials and "levels" can help both beginners and intermediate developers polish their version control skills. A quick demo is available here:
-http://pcottle.github.com/learnGitBranching/?demo
+https://pcottle.github.com/learnGitBranching/?demo
 
-Or you can launch the application normally here:
-http://pcottle.github.com/learnGitBranching/
+Or, you can launch the application normally here:
+https://pcottle.github.com/learnGitBranching/
 
 ### Sandbox Mode
 
@@ -37,7 +38,7 @@ You can share a link to LearnGitBranching with an arbitrary set of commands that
 ### Level Builder
 
 You can build levels with `build level`. The dialog will walk you through the process, and at the end you can `export level` to get a JSON blob. Paste that in a gist or directly into an issue and I can check it out / merge in your changes! You can also share this level directly with friends by having them run "import level" or simply specify a gist ID in the url params like so:
-http://pcottle.github.io/learnGitBranching/?gist_level_id=a84407351f9c9f0cb241
+https://pcottle.github.io/learnGitBranching/?gist_level_id=a84407351f9c9f0cb241
 
 ## Reporting Bugs / Opening Issues
 
@@ -71,31 +72,69 @@ Thus, if you build the app locally, all you have to do in order to run the app i
 For contributing core functionality in the app, you'll probably want to test your changes
 at least once before submitting a pull request. That means you'll need the "Grunt.js" build tool to build the app:
 
-http://gruntjs.com/getting-started
+https://gruntjs.com/getting-started
 
-You'll also need `npm` to download all the dependencies of the project.
+You'll also need `yarn` to download all the dependencies of the project.
 
 The general workflow / steps are below:
 
-```
+```bash
 git clone <your fork of the repo>
 cd learnGitBranching
-npm install # to install all the node modules I depend on
+yarn install
 
 git checkout -b newAwesomeFeature
 vim ./src/js/git/index.js # some changes
-grunt fastBuild # skips tests and linting, faster build
+yarn grunt fastBuild # skips tests and linting, faster build
 
 # after building you can open up your browser to the index.html
 # file generated and see your changes
 
 vim ./src/js/git/index.js # more changes
-grunt build # runs tests and lint
+yarn grunt build # runs tests and lint
 
 git commit -am "My new sweet feature!"
 git push
 # go online and request a pull
 ```
+
+Alternatively, you can also build and run the app in a pre-configured online workspace:
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/pcottle/learnGitBranching/blob/master/src/js/git/index.js)
+
+[//]: contributor-faces
+<a href="https://github.com/pcottle"><img src="https://avatars0.githubusercontent.com/u/1135007?v=4" title="pcottle" width="80" height="80"></a>
+<a href="https://github.com/Hongarc"><img src="https://avatars1.githubusercontent.com/u/19208123?v=4" title="Hongarc" width="80" height="80"></a>
+<a href="https://github.com/twmht"><img src="https://avatars1.githubusercontent.com/u/1567200?v=4" title="twmht" width="80" height="80"></a>
+<a href="https://github.com/JuhoKang"><img src="https://avatars1.githubusercontent.com/u/4745294?v=4" title="JuhoKang" width="80" height="80"></a>
+<a href="https://github.com/sunshowers"><img src="https://avatars3.githubusercontent.com/u/180618?v=4" title="sunshowers" width="80" height="80"></a>
+<a href="https://github.com/sPATROL"><img src="https://avatars0.githubusercontent.com/u/11875983?v=4" title="sPATROL" width="80" height="80"></a>
+<a href="https://github.com/coyl"><img src="https://avatars1.githubusercontent.com/u/274452?v=4" title="coyl" width="80" height="80"></a>
+<a href="https://github.com/alexeiberkov"><img src="https://avatars1.githubusercontent.com/u/4151345?v=4" title="alexeiberkov" width="80" height="80"></a>
+<a href="https://github.com/aschrab"><img src="https://avatars1.githubusercontent.com/u/39620?v=4" title="aschrab" width="80" height="80"></a>
+<a href="https://github.com/bcbcarl"><img src="https://avatars0.githubusercontent.com/u/135734?v=4" title="bcbcarl" width="80" height="80"></a>
+<a href="https://github.com/ahonorat"><img src="https://avatars1.githubusercontent.com/u/5851945?v=4" title="ahonorat" width="80" height="80"></a>
+<a href="https://github.com/nem75"><img src="https://avatars0.githubusercontent.com/u/1327785?v=4" title="nem75" width="80" height="80"></a>
+<a href="https://github.com/eatdrinksleepcode"><img src="https://avatars0.githubusercontent.com/u/2099560?v=4" title="eatdrinksleepcode" width="80" height="80"></a>
+<a href="https://github.com/nlehuby"><img src="https://avatars3.githubusercontent.com/u/919962?v=4" title="nlehuby" width="80" height="80"></a>
+<a href="https://github.com/alexandear"><img src="https://avatars2.githubusercontent.com/u/3228886?v=4" title="alexandear" width="80" height="80"></a>
+<a href="https://github.com/PanAeon"><img src="https://avatars3.githubusercontent.com/u/686076?v=4" title="PanAeon" width="80" height="80"></a>
+<a href="https://github.com/donkirkby"><img src="https://avatars1.githubusercontent.com/u/1639148?v=4" title="donkirkby" width="80" height="80"></a>
+<a href="https://github.com/lroellin"><img src="https://avatars1.githubusercontent.com/u/3150983?v=4" title="lroellin" width="80" height="80"></a>
+<a href="https://github.com/ptsoccer"><img src="https://avatars1.githubusercontent.com/u/1102725?v=4" title="ptsoccer" width="80" height="80"></a>
+<a href="https://github.com/jankeromnes"><img src="https://avatars2.githubusercontent.com/u/599268?v=4" title="jankeromnes" width="80" height="80"></a>
+<a href="https://github.com/qiansen1386"><img src="https://avatars2.githubusercontent.com/u/1759658?v=4" title="qiansen1386" width="80" height="80"></a>
+<a href="https://github.com/renderf0x"><img src="https://avatars1.githubusercontent.com/u/6155643?v=4" title="renderf0x" width="80" height="80"></a>
+<a href="https://github.com/filipefilardi"><img src="https://avatars1.githubusercontent.com/u/7308241?v=4" title="filipefilardi" width="80" height="80"></a>
+<a href="https://github.com/rebangm"><img src="https://avatars2.githubusercontent.com/u/1638136?v=4" title="rebangm" width="80" height="80"></a>
+<a href="https://github.com/marcolivierarsenault"><img src="https://avatars2.githubusercontent.com/u/2634090?v=4" title="marcolivierarsenault" width="80" height="80"></a>
+<a href="https://github.com/pengi"><img src="https://avatars0.githubusercontent.com/u/1087673?v=4" title="pengi" width="80" height="80"></a>
+<a href="https://github.com/waldyrious"><img src="https://avatars2.githubusercontent.com/u/478237?v=4" title="waldyrious" width="80" height="80"></a>
+<a href="https://github.com/tym-network"><img src="https://avatars1.githubusercontent.com/u/2879545?v=4" title="tym-network" width="80" height="80"></a>
+<a href="https://github.com/zhyu"><img src="https://avatars1.githubusercontent.com/u/1728523?v=4" title="zhyu" width="80" height="80"></a>
+<a href="https://github.com/mgarciaisaia"><img src="https://avatars1.githubusercontent.com/u/1190974?v=4" title="mgarciaisaia" width="80" height="80"></a>
+
+[//]: contributor-faces
 
 ## Helpful Folks
 A big shoutout to these brave souls for extensively testing our sandbox and finding bugs and/or inconsistencies:

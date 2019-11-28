@@ -59,13 +59,23 @@ exports.dialog = {
       ]
     }
   }],
+  'gl': [{
+    type: 'ModalAlert',
+    options: {
+      markdowns: [
+        '## ¿Queres ver a solución?',
+        '',
+        'Seguro que podes, ¡inténtao unha vez máis!'
+      ]
+    }
+  }],
   'fr_FR': [{
     type: 'ModalAlert',
     options: {
       markdowns: [
         '## Êtes-vous sûr de vouloir voir la solution ?',
         '',
-        'Je crois en vous ! Vous pouvez le faire'
+        'Je crois en vous ! Vous pouvez le faire !'
       ]
     }
   }],
@@ -99,7 +109,7 @@ exports.dialog = {
     type: 'ModalAlert',
     options: {
       markdowns: [
-        '## Впевнений, що хошеш побачити розв’язок?',
+        '## Впевнений, що хочеш побачити розв’язок?',
         '',
         'Я вірю в тебе! Ти впораєшся!'
       ]

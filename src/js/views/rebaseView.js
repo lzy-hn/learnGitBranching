@@ -19,7 +19,7 @@ var InteractiveRebaseView = ContainedBase.extend({
 
     this.rebaseEntries = new RebaseEntryCollection();
     options.toRebase.reverse();
-    _.each(options.toRebase, function(commit) {
+    options.toRebase.forEach(function(commit) {
       var id = commit.get('id');
       this.rebaseMap[id] = commit;
 
@@ -63,7 +63,7 @@ var InteractiveRebaseView = ContainedBase.extend({
 
     // now get the real array
     var toRebase = [];
-    _.each(uiOrder, function(id) {
+    uiOrder.forEach(function(id) {
       // the model pick check
       if (this.entryObjMap[id].get('pick')) {
         toRebase.unshift(this.rebaseMap[id]);
@@ -78,7 +78,7 @@ var InteractiveRebaseView = ContainedBase.extend({
 
   render: function() {
     var json = {
-      num: _.keys(this.rebaseMap).length,
+      num: Object.keys(this.rebaseMap).length,
       solutionOrder: this.options.initialCommitOrdering
     };
 
@@ -164,7 +164,6 @@ var RebaseEntryView = Backbone.View.extend({
   },
 
   render: function() {
-    var json = this.model.toJSON();
     this.$el.append(this.template(this.model.toJSON()));
 
     // hacky :( who would have known jquery barfs on ids with %'s and quotes

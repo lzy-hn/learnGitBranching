@@ -1,5 +1,6 @@
 var base = require('./base');
 var expectTreeAsync = base.expectTreeAsync;
+var runCommand = base.runCommand;
 
 describe('Git', function() {
   it('Commits', function() {
@@ -20,6 +21,13 @@ describe('Git', function() {
     expectTreeAsync(
       'git commit foo; git commit -am -m; git commit -am -a; git commit -am "hi" "ho"; git commit',
       base.ONE_COMMIT_TREE
+    );
+  });
+
+  it('handles lower case branch options', function() {
+    expectTreeAsync(
+      'git branch banana c0; git commit; git checkout -b side banana; git branch -d banana;git branch -f another c1; git commit',
+      '{"branches":{"master":{"target":"C2","id":"master"},"side":{"target":"C3","id":"side"},"another":{"target":"C1","id":"another"}},"commits":{"C0":{"parents":[],"id":"C0","rootCommit":true},"C1":{"parents":["C0"],"id":"C1"},"C2":{"parents":["C1"],"id":"C2"},"C3":{"parents":["C0"],"id":"C3"}},"HEAD":{"target":"side","id":"HEAD"}}'
     );
   });
 
@@ -107,6 +115,13 @@ describe('Git', function() {
     );
   });
 
+  it('Branches lowercase', function() {
+    expectTreeAsync(
+      'git branch side c0',
+      '{"branches":{"master":{"target":"C1","id":"master"},"side":{"target":"C0","id":"side"}},"commits":{"C0":{"parents":[],"id":"C0","rootCommit":true},"C1":{"parents":["C0"],"id":"C1"}},"HEAD":{"target":"master","id":"HEAD"}}'
+    );
+  });
+
   it('Deletes branches', function() {
     expectTreeAsync(
       'git branch side; git branch -d side',
@@ -114,7 +129,7 @@ describe('Git', function() {
     );
   });
 
-  it('Ammends commits', function() {
+  it('Amends commits', function() {
     expectTreeAsync(
       'git commit --amend',
       '%7B%22branches%22%3A%7B%22master%22%3A%7B%22target%22%3A%22C1%27%22%2C%22id%22%3A%22master%22%7D%7D%2C%22commits%22%3A%7B%22C0%22%3A%7B%22parents%22%3A%5B%5D%2C%22id%22%3A%22C0%22%2C%22rootCommit%22%3Atrue%7D%2C%22C1%22%3A%7B%22parents%22%3A%5B%22C0%22%5D%2C%22id%22%3A%22C1%22%7D%2C%22C1%27%22%3A%7B%22parents%22%3A%5B%22C0%22%5D%2C%22id%22%3A%22C1%27%22%7D%7D%2C%22HEAD%22%3A%7B%22target%22%3A%22master%22%2C%22id%22%3A%22HEAD%22%7D%7D'
@@ -125,6 +140,13 @@ describe('Git', function() {
     expectTreeAsync(
       'git checkout -b side C0; gc; git cherry-pick C11; git cherry-pick C1',
       '%7B%22branches%22%3A%7B%22master%22%3A%7B%22target%22%3A%22C1%22%2C%22id%22%3A%22master%22%7D%2C%22side%22%3A%7B%22target%22%3A%22C1%27%22%2C%22id%22%3A%22side%22%7D%7D%2C%22commits%22%3A%7B%22C0%22%3A%7B%22parents%22%3A%5B%5D%2C%22id%22%3A%22C0%22%2C%22rootCommit%22%3Atrue%7D%2C%22C1%22%3A%7B%22parents%22%3A%5B%22C0%22%5D%2C%22id%22%3A%22C1%22%7D%2C%22C2%22%3A%7B%22parents%22%3A%5B%22C0%22%5D%2C%22id%22%3A%22C2%22%7D%2C%22C1%27%22%3A%7B%22parents%22%3A%5B%22C2%22%5D%2C%22id%22%3A%22C1%27%22%7D%7D%2C%22HEAD%22%3A%7B%22target%22%3A%22side%22%2C%22id%22%3A%22HEAD%22%7D%7D'
+    );
+  });
+
+  it('Range operator is not supported', function() {
+    expectTreeAsync(
+      'git checkout -b side C0; git cherry-pick C1..C0',
+      '{"branches":{"master":{"target": "C1","id": "master"},"side":{"target":"C0","id": "side"}},"commits":{"C0":{"parents":[],"id": "C0","rootCommit": true},"C1":{"parents":["C0"],"id": "C1"}},"HEAD":{"id": "HEAD","target":"side"}}'
     );
   });
 
@@ -198,6 +220,13 @@ describe('Git', function() {
 		);
 	});
 
+	it('makes a tag and removes a tag', function() {
+		expectTreeAsync(
+			'git tag v1; git tag -d v1',
+			'{"branches":{"master":{"target":"C1","id":"master","remoteTrackingBranchID":null}},"commits":{"C0":{"parents":[],"id":"C0","rootCommit":true},"C1":{"parents":["C0"],"id":"C1"}},"tags":{},"HEAD":{"target":"master","id":"HEAD"}}'
+		);
+	});
+
 	it('makes a tag on another ref', function() {
 		expectTreeAsync(
 			'git tag v1 C0',
@@ -205,7 +234,7 @@ describe('Git', function() {
 		);
 	});
 
-	it('doesnt make a tag if ref doesnt resolve', function() {
+	it('doesn\'t make a tag if ref doesn\'t resolve', function() {
 		expectTreeAsync(
 			'git tag v1 foo',
 			'{"branches":{"master":{"target":"C1","id":"master","remoteTrackingBranchID":null}},"commits":{"C0":{"parents":[],"id":"C0","rootCommit":true},"C1":{"parents":["C0"],"id":"C1"}},"tags":{},"HEAD":{"target":"master","id":"HEAD"}}'
@@ -247,7 +276,7 @@ describe('Git', function() {
 		);
 	});
 
-  it('can handle slashes and dashes in branch names but doesnt allow o/', function() {
+  it('can handle slashes and dashes in branch names but doesn\'t allow o/', function() {
 		expectTreeAsync(
       'git branch foo/bar; git commit; git checkout foo/bar; gc; go master; git merge foo/bar; go foo/bar; git checkout -b bar-baz; git commit; git branch o/foo',
       '{"branches":{"master":{"target":"C4","id":"master","remoteTrackingBranchID":null},"foo/bar":{"target":"C3","id":"foo/bar","remoteTrackingBranchID":null},"bar-baz":{"target":"C5","id":"bar-baz","remoteTrackingBranchID":null}},"commits":{"C0":{"parents":[],"id":"C0","rootCommit":true},"C1":{"parents":["C0"],"id":"C1"},"C2":{"parents":["C1"],"id":"C2"},"C3":{"parents":["C1"],"id":"C3"},"C4":{"parents":["C2","C3"],"id":"C4"},"C5":{"parents":["C3"],"id":"C5"}},"tags":{},"HEAD":{"target":"bar-baz","id":"HEAD"}}'
@@ -261,5 +290,116 @@ describe('Git', function() {
 		);
   });
 
-});
+  describe('RevList', function() {
 
+    it('requires at least 1 argument', function() {
+      runCommand('git rev-list', function(commandMsg) {
+        expect(commandMsg).toContain('at least 1');
+      });
+    });
+
+    describe('supports', function() {
+      var SETUP = 'git co -b left C0; gc; git merge master; git co -b right C0; gc; git merge master; git co -b all left; git merge right; ';
+
+      it('single included revision', function() {
+        runCommand(SETUP + 'git rev-list all', function(commandMsg) {
+          expect(commandMsg).toBe('C6\nC5\nC4\nC3\nC2\nC1\nC0\n');
+        });
+      });
+
+      it('single excluded revision', function() {
+        runCommand(SETUP + 'git rev-list all ^right', function(commandMsg) {
+          expect(commandMsg).toBe('C6\nC3\nC2\n');
+        });
+      });
+
+      it('multiple included revisions', function() {
+        runCommand(SETUP + 'git rev-list right left', function(commandMsg) {
+          expect(commandMsg).toBe('C5\nC4\nC3\nC2\nC1\nC0\n');
+        });
+      });
+
+      it('multiple excluded revisions', function() {
+        runCommand(SETUP + 'git rev-list all ^right ^left', function(commandMsg) {
+          expect(commandMsg).toBe('C6\n');
+        });
+      });
+
+      it('range between branches', function() {
+        runCommand(SETUP + 'git rev-list left..right', function(commandMsg) {
+          expect(commandMsg).toBe('C5\nC4\n');
+        });
+      });
+
+      it('range between commits', function() {
+        runCommand(SETUP + 'git rev-list C3..C5', function(commandMsg) {
+          expect(commandMsg).toBe('C5\nC4\n');
+        });
+      });
+    });
+  });
+
+  describe('Log supports', function() {
+    var SETUP = 'git co -b left C0; gc; git merge master; git co -b right C0; gc; git merge master; git co -b all left; git merge right; ';
+
+    it('implied HEAD', function() {
+      runCommand(SETUP + '; git co right; git log', function(commandMsg) {
+        expect(commandMsg).toContain('Commit: C0\n');
+        expect(commandMsg).toContain('Commit: C1\n');
+        expect(commandMsg).not.toContain('Commit: C2\n');
+        expect(commandMsg).not.toContain('Commit: C3\n');
+        expect(commandMsg).toContain('Commit: C4\n');
+        expect(commandMsg).toContain('Commit: C5\n');
+        expect(commandMsg).not.toContain('Commit: C6\n');
+      });
+    });
+
+    it('single included revision', function() {
+      runCommand(SETUP + 'git log right', function(commandMsg) {
+        expect(commandMsg).toContain('Commit: C0\n');
+        expect(commandMsg).toContain('Commit: C1\n');
+        expect(commandMsg).not.toContain('Commit: C2\n');
+        expect(commandMsg).not.toContain('Commit: C3\n');
+        expect(commandMsg).toContain('Commit: C4\n');
+        expect(commandMsg).toContain('Commit: C5\n');
+        expect(commandMsg).not.toContain('Commit: C6\n');
+      });
+    });
+
+    it('single excluded revision', function() {
+      runCommand(SETUP + 'git log all ^right', function(commandMsg) {
+        expect(commandMsg).not.toContain('Commit: C0\n');
+        expect(commandMsg).not.toContain('Commit: C1\n');
+        expect(commandMsg).toContain('Commit: C2\n');
+        expect(commandMsg).toContain('Commit: C3\n');
+        expect(commandMsg).not.toContain('Commit: C4\n');
+        expect(commandMsg).not.toContain('Commit: C5\n');
+        expect(commandMsg).toContain('Commit: C6\n');
+      });
+    });
+
+    it('multiple included revisions', function() {
+      runCommand(SETUP + 'git log right left', function(commandMsg) {
+        expect(commandMsg).toContain('Commit: C0\n');
+        expect(commandMsg).toContain('Commit: C1\n');
+        expect(commandMsg).toContain('Commit: C2\n');
+        expect(commandMsg).toContain('Commit: C3\n');
+        expect(commandMsg).toContain('Commit: C4\n');
+        expect(commandMsg).toContain('Commit: C5\n');
+        expect(commandMsg).not.toContain('Commit: C6\n');
+      });
+    });
+
+    it('multiple excluded revisions', function() {
+      runCommand(SETUP + 'git log all ^right ^left', function(commandMsg) {
+        expect(commandMsg).not.toContain('Commit: C0\n');
+        expect(commandMsg).not.toContain('Commit: C1\n');
+        expect(commandMsg).not.toContain('Commit: C2\n');
+        expect(commandMsg).not.toContain('Commit: C3\n');
+        expect(commandMsg).not.toContain('Commit: C4\n');
+        expect(commandMsg).not.toContain('Commit: C5\n');
+        expect(commandMsg).toContain('Commit: C6\n');
+      });
+    });
+  });
+});

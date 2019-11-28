@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var escapeString = require('../util/escapeString');
 var intl = require('../intl');
 
 var Graph = require('../graph');
@@ -19,7 +19,7 @@ function isColonRefspec(str) {
 }
 
 var assertIsRef = function(engine, ref) {
-  engine.resolveID(ref); // will throw giterror if cant resolve
+  engine.resolveID(ref); // will throw git error if can't resolve
 };
 
 var validateBranchName = function(engine, name) {
@@ -83,7 +83,7 @@ var assertOriginSpecified = function(generalArgs) {
   if (generalArgs[0] !== 'origin') {
     throw new GitError({
       msg: intl.todo(
-        generalArgs[0] + ' is not a remote in your repository! try adding origin that argument'
+        generalArgs[0] + ' is not a remote in your repository! try adding origin to that argument'
       )
     });
   }
@@ -107,7 +107,7 @@ var assertBranchIsRemoteTracking = function(engine, branchName) {
   if (!tracking) {
     throw new GitError({
       msg: intl.todo(
-        branchName + ' is not a remote tracking branch! I dont know where to push'
+        branchName + ' is not a remote tracking branch! I don\'t know where to push'
       )
     });
   }
@@ -121,6 +121,7 @@ var commandConfig = {
     options: [
       '--amend',
       '-a',
+      '--all',
       '-am',
       '-m'
     ],
@@ -129,7 +130,7 @@ var commandConfig = {
       command.acceptNoGeneralArgs();
 
       if (commandOptions['-am'] && (
-          commandOptions['-a'] || commandOptions['-m'])) {
+          commandOptions['-a'] || commandOptions['--all'] || commandOptions['-m'])) {
         throw new GitError({
           msg: intl.str('git-error-options')
         });
@@ -137,7 +138,7 @@ var commandConfig = {
 
       var msg = null;
       var args = null;
-      if (commandOptions['-a']) {
+      if (commandOptions['-a'] || commandOptions['--all']) {
         command.addWarning(intl.str('git-warning-add'));
       }
 
@@ -189,7 +190,7 @@ var commandConfig = {
 
       var set = Graph.getUpstreamSet(engine, 'HEAD');
       // first resolve all the refs (as an error check)
-      var toCherrypick = _.map(generalArgs, function(arg) {
+      var toCherrypick = generalArgs.map(function (arg) {
         var commit = engine.getCommitFromRef(arg);
         // and check that its not upstream
         if (set[commit.get('id')]) {
@@ -254,7 +255,7 @@ var commandConfig = {
         // get o/master locally if master is specified
         destination = engine.origin.refs[source].getPrefixedID();
       } else {
-        // cant be detached
+        // can't be detached
         if (engine.getDetachedHead()) {
           throw new GitError({
             msg: intl.todo('Git pull can not be executed in detached HEAD mode if no remote branch specified!')
@@ -413,6 +414,7 @@ var commandConfig = {
       '-d',
       '-D',
       '-f',
+      '--force',
       '-a',
       '-r',
       '-u',
@@ -429,7 +431,7 @@ var commandConfig = {
         names = names.concat(generalArgs);
         command.validateArgBounds(names, 1, Number.MAX_VALUE, '-d');
 
-        _.each(names, function(name) {
+        names.forEach(function(name) {
           engine.validateAndDeleteBranch(name);
         });
         return;
@@ -458,8 +460,9 @@ var commandConfig = {
         return;
       }
 
-      if (commandOptions['-f']) {
-        args = commandOptions['-f'].concat(generalArgs);
+      if (commandOptions['-f'] || commandOptions['--force']) {
+        args = commandOptions['-f'] || commandOptions['--force'];
+        args = args.concat(generalArgs);
         command.twoArgsImpliedHead(args, '-f');
 
         // we want to force a branch somewhere
@@ -516,7 +519,7 @@ var commandConfig = {
         command.addWarning(
           intl.str('git-warning-hard')
         );
-        // dont absorb the arg off of --hard
+        // don't absorb the arg off of --hard
         generalArgs = generalArgs.concat(commandOptions['--hard']);
       }
 
@@ -549,7 +552,7 @@ var commandConfig = {
     ],
     execute: function(engine, command) {
       var commandOptions = command.getOptionsMap();
-      var generalArgs = command.getGeneralArgs();
+      var generalArgs = command.getGeneralArgs().concat(commandOptions['--no-ff'] || []);
       command.validateArgBounds(generalArgs, 1, 1);
 
       var newCommit = engine.merge(
@@ -571,25 +574,26 @@ var commandConfig = {
     }
   },
 
+  revlist: {
+    dontCountForGolf: true,
+    displayName: 'rev-list',
+    regex: /^git +rev-list($|\s)/,
+    execute: function(engine, command) {
+      var generalArgs = command.getGeneralArgs();
+      command.validateArgBounds(generalArgs, 1);
+
+      engine.revlist(generalArgs);
+    }
+  },
+
   log: {
     dontCountForGolf: true,
     regex: /^git +log($|\s)/,
     execute: function(engine, command) {
       var generalArgs = command.getGeneralArgs();
 
-      if (generalArgs.length == 2) {
-        // do fancy git log branchA ^branchB
-        if (generalArgs[1][0] == '^') {
-          engine.logWithout(generalArgs[0], generalArgs[1]);
-        } else {
-          throw new GitError({
-            msg: intl.str('git-error-options')
-          });
-        }
-      }
-
-      command.oneArgImpliedHead(generalArgs);
-      engine.log(generalArgs[0]);
+      command.impliedHead(generalArgs, 0);
+      engine.log(generalArgs);
     }
   },
 
@@ -807,8 +811,41 @@ var commandConfig = {
 
   tag: {
     regex: /^git +tag($|\s)/,
+    options: [
+      '-d'
+    ],
     execute: function(engine, command) {
       var generalArgs = command.getGeneralArgs();
+      var commandOptions = command.getOptionsMap();
+
+      if (commandOptions['-d']) {
+        var tagID = commandOptions['-d'];
+        var tagToRemove;
+
+        assertIsRef(engine, tagID);
+
+        command.oneArgImpliedHead(tagID);
+        engine.tagCollection.each(function(tag) {
+          if(tag.get('id') == tagID){
+            tagToRemove = tag;
+          }
+        }, true);
+
+        if(tagToRemove == undefined){
+          throw new GitError({
+            msg: intl.todo(
+              'No tag found, nothing to remove'
+            )
+          });
+        }
+
+        engine.tagCollection.remove(tagToRemove);
+        delete engine.refs[tagID];
+
+        engine.gitVisuals.refreshTree();
+        return;
+      }
+
       if (generalArgs.length === 0) {
         var tags = engine.getTags();
         engine.printTags(tags);
@@ -827,7 +864,7 @@ var instantCommands = [
       intl.str('git-version'),
       '<br/>',
       intl.str('git-usage'),
-      _.escape(intl.str('git-usage-command')),
+      escapeString(intl.str('git-usage-command')),
       '<br/>',
       intl.str('git-supported-commands'),
       '<br/>'
@@ -835,9 +872,10 @@ var instantCommands = [
 
     var commands = require('../commands').commands.getOptionMap()['git'];
     // build up a nice display of what we support
-    _.each(commands, function(commandOptions, command) {
+    Object.keys(commands).forEach(function(command) {
+      var commandOptions = commands[command];
       lines.push('git ' + command);
-      _.each(commandOptions, function(vals, optionName) {
+      Object.keys(commandOptions).forEach(function(optionName) {
         lines.push('\t ' + optionName);
       }, this);
     }, this);
@@ -853,4 +891,3 @@ var instantCommands = [
 
 exports.commandConfig = commandConfig;
 exports.instantCommands = instantCommands;
-

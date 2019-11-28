@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
    "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
 <head>
@@ -9,13 +9,15 @@
 
   <meta property="og:title" content="Learn Git Branching"/>
   <meta property="og:type" content="website"/>
-  <meta property="og:url" content="http://pcottle.github.io/learnGitBranching/index.html?demo"/>
-  <meta property="og:image" content="http://pcottle.github.io/learnGitBranching/assets/learnGitBranching.png"/>
+  <meta property="og:url" content="https://pcottle.github.io/learnGitBranching/index.html?demo"/>
+  <meta property="og:image" content="https://pcottle.github.io/learnGitBranching/assets/learnGitBranching.png"/>
   <meta property="og:description" content="An interactive Git visualization tool to educate and challenge!"/>
+  <meta http-equiv="content-language" content="en">
 
   <link rel="stylesheet" href="build/{{styleFile}}" type="text/css" charset="utf-8">
   <link rel="stylesheet" href="src/style/font-awesome.css" type="text/css" charset="utf-8">
   <link rel="stylesheet" href="src/style/rainbows.css" type="text/css" charset="utf-8">
+  <link rel="icon" href="src/style/favicon.ico" type="image/x-icon">
 </head>
 <body>
   <!-- lol noscript. I did not write 9k+ lines of JS just for you to bounce off my website -->
@@ -66,7 +68,13 @@
             <span class="cursor box">&nbsp;</span>
             <p class="command"></p>
           </div>
-          <textarea id="commandTextField"></textarea>
+          <textarea
+						autocomplete="off"
+						autocorrect="off"
+						autocapitalize="off"
+						spellcheck="false"
+						id="commandTextField">
+					</textarea>
         </div>
 
       </div>
@@ -388,11 +396,11 @@
       <% if (solutionOrder && solutionOrder.length) { %>
         <p class="solutionText">
           For the solution, order the commits as
-            <%= solutionOrder.join(', ') %>
+            <%= solutionOrder.join(', ') %>. You may need to omit or pick commits.
         </p>
       <% } %>
       <p class="helperText">
-        (Drag and drop to re-order. Toggle the "pick" button to omit or re-add a commit)
+        (Drag and drop to re-order. Toggle the "Omit/Pick" button to omit or re-add a commit)
       </p>
       <div class="entryHolders">
         <ul class="rebaseEntries">
@@ -446,7 +454,12 @@
           <%= id %>
         </span>
         <a id="toggleButton" class="uiButton uiButtonPink">
-          Pick
+          <span class="showWhenPicked">
+            Omit
+          </span>
+          <span class="showWhenNotPicked">
+            Pick
+          </span>
         </a>
       </div>
     </li>
